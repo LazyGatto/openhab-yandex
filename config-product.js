@@ -16,4 +16,8 @@ module.exports = {
     certificate: '/mnt/data/root/cert.crt',
     port: 443,
   },
+  http: {
+    port: 80,
+  },
+  scheme: 'http',
 };

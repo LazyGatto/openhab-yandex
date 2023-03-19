@@ -28,19 +28,21 @@
 
 Настраиваем репозиторий Node JS
 
-curl -sL https://deb.nodesource.com/setup_10.x | bash -
+curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+
+sudo apt-get install -y nodejs
 
 Устанавливаем необходимые компоненты
 
-apt-get install -y nodejs git make g++ gcc build-essential
+sudo apt-get install -y nodejs git make g++ gcc build-essential
 
 Копируем файлы
 
-git clone https://github.com/vadim121283/openhab-yandex.git /opt/openhab-yandex
+sudo git clone https://github.com/LazyGatto/openhab-yandex.git /opt/openhab-yandex
 
 Задаём права.
 
-chown -R root:root /opt/openhab-yandex
+sudo chown -R root:root /opt/openhab-yandex
 
 Заходим в директорию и запускаем установку
 
@@ -55,6 +57,35 @@ Debian: https://baks.dev/article/debian/how-to-install-mongodb-on-debian-10-linu
 
 CentOS: https://www.8host.com/blog/ustanovka-mongodb-v-centos-7/
 
+## Установка MongoDB
+
+# Debian 11
+apt-get install gnupg
+
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
+
+echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" |  tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+
+apt-get update
+
+apt-get install -y mongodb-org
+
+# Ubuntu 22.04 ARM64
+
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+
+sudo apt-get update
+
+MongoDB database creation: mongosh
+use openhabyandex
+
+в этой БД было три коллекции - users, clients, tokens, нужно записать в коллекцию users запись с вашим именем пользователя и паролем с myopenhab.org: 
+db.users.insertOne({ "username": "vasily.pupkin@gmail.com", "password": "supa-pupa-passward" })
+
+в коллекцию clients:
+db.clients.insertOne({ "yClientId": "ваш идентификатор-приложения-набор-цифр-и букв", "clientSecret": "ваш секрет приложения" })
 
 Запускаем мост (Перед запуском мост нужно настроить)
 npm start
@@ -65,7 +96,7 @@ npm start
 В папке /etc/systemd/system/ создайте файл openhabyandex.service и впишите в него:
 
 [Unit]
-Description=yandex2mqtt
+Description=yandex2openhab
 After=network.target
 
 [Service]

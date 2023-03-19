@@ -11,20 +11,9 @@ const config = require('./config');
 const fs = require('fs');
 
 const app = express();
-const https = require('https');
-
-const privateKey = fs.readFileSync(config.https.privateKey, 'utf8');
-const certificate = fs.readFileSync(config.https.certificate, 'utf8');
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-};
 
 const mongoose = require('mongoose');
 const MongoConnect = require('./db/mongoconnect');
-
-// HTTPS server
-const httpsServer = https.createServer(credentials, app);
 
 // MongoDB
 const mongoConnect = new MongoConnect();
@@ -75,6 +64,22 @@ app.get('/provider/v1.0/user/devices', routes.user.devices);
 app.post('/provider/v1.0/user/devices/query', routes.user.query);
 app.post('/provider/v1.0/user/devices/action', routes.user.action);
 app.post('/provider/v1.0/user/unlink', routes.user.unlink);
-httpsServer.listen(config.https.port);
+
+// Init HTTP/HTTPS server
+if (config.scheme == 'https') {
+  const https = require('https');
+  const privateKey = fs.readFileSync(config.https.privateKey, 'utf8');
+  const certificate = fs.readFileSync(config.https.certificate, 'utf8');
+  const credentials = {
+    key: privateKey,
+    cert: certificate,
+  };
+  const webServer = https.createServer(credentials, app);
+  webServer.listen(config.https.port);
+} else {
+  const http = require('http');
+  const webServer = http.createServer(app);
+  webServer.listen(config.http.port);
+}
 
 module.exports = app;
